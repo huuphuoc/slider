@@ -1,0 +1,26 @@
+/**
+ * Slider
+ * Copyright (c) 2013 Nguyen Huu Phuoc <thenextcms@gmail.com>
+ */
+.s-wrapper {
+  position: relative;
+}
+.s-wrapper .s-inner {
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.s-wrapper .s-slide {
+  /*display: none;*/
+
+}
+.s-wrapper .s-progressbar {
+  background-color: #000000;
+  height: 3px;
+  width: 100%;
+  opacity: 0.5;
+  position: absolute;
+  bottom: 3px;
+  z-index: 100;
+}
