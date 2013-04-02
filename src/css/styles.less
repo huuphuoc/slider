@@ -6,7 +6,7 @@
 // CSS class prefix
 @prefix: s-;
 @progressBarBgColor: #000;
-@progressBarHeight: 3px;
+@progressBarHeight: 5px;
 @progressBarOpacity: 0.5;
 
 //  <div class="x-wrapper">
@@ -32,6 +32,9 @@
     }
     .@{prefix}slide {
         /*display: none;*/
+        img {
+            max-width: 100%;
+        }
     }
     .@{prefix}progressbar {
         background-color: @progressBarBgColor;
@@ -39,7 +42,7 @@
         width: 100%;
         opacity: @progressBarOpacity;
         position: absolute;
-            bottom: @progressBarHeight;
+            top: 0;
         z-index: 100;
     }
     .@{prefix}pagination {

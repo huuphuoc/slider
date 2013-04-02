@@ -7,7 +7,7 @@
 (function($) {
     var Slider = function(element, options) {
         // The default options
-        var defaultOptions = {
+        this.defaultOptions = {
             // {String} The CSS selector to retrieve all slide items.
             // By default, it will get all children of the slider node
             selector: '*',
@@ -20,6 +20,9 @@
             width: null,
             height: null,
 
+            // {Boolean} Show the progress bar or not
+            progressBar: true,
+
             // {Boolean} Setting it to TRUE will start the slider automatically
             autoPlay: true,
 
@@ -31,7 +34,7 @@
         };
 
         this.$element     = $(element);
-        this.options      = $.extend({}, defaultOptions, options);
+        this.options      = $.extend({}, this.defaultOptions, options);
         this.slides       = this.$element.children(this.options.selector);
         this.$viewPort    = null;
         this.$progressBar = null;
@@ -102,14 +105,24 @@
         _completeLoading: function() {
             var that = this;
 
+            // Check if the width of slides are greater than the document width
+            var documentWidth = $(document).width();
+            if (documentWidth < this.width) {
+                this.height = documentWidth * this.height / this.width;
+                this.width  = documentWidth;
+
+                this.slides.width(this.width).height(this.height);
+            }
+
             // Add progress bar
-            this.$progressBar = $('<div/>')
-                .addClass(this.options.classPrefix + 'progressbar')
-                .prependTo(this.$element);
-            this.$progressBar
-                .data('width', this.width)
-                .width(this.width)
-                .hide();
+            if (this.options.progressBar) {
+                this.$progressBar = $('<div/>')
+                    .addClass(this.options.classPrefix + 'progressbar')
+                    .prependTo(this.$element);
+                this.$progressBar
+                    .data('width', this.width)
+                    .width(this.width);
+            }
 
             // Show the first one
             this.slides.eq(this._currentSlide).show();
@@ -126,13 +139,15 @@
                 $(document).on('keyup', function(e) {
                     switch (e.keyCode) {
                         case 37:    // Left arrow key (<-)
+                        case 38:    // Top arrow key
                             that.prev();
                             // Prevent the page scrolling horizontally
                             return false;
                             break;
                         case 39:    // Right arrow key (->)
-                        case 32:    // Space bar
-                            that.next();
+                        case 40:    // Bottom arrow key
+                        //case 32:    // Space bar
+                           that.next();
                             return false;
                             break;
                         default:
@@ -146,13 +161,14 @@
             this._elapsedTime = 0;
             this._startTime   = new Date().getTime();
 
-            this.$progressBar
-                .hide()
-                .dequeue()
-                .width(this.$progressBar.data('width'))
-                .animate({
-                    width: 'show'
-                }, this.options.interval, 'linear');
+            if (this.options.progressBar) {
+                this.$progressBar
+                    .dequeue()
+                    .width(0)
+                    .animate({
+                        width: this.$progressBar.data('width')
+                    }, this.options.interval, 'linear');
+            }
         },
 
         _complete: function() {
@@ -174,32 +190,54 @@
         // ------------
 
         /**
+         * Goes to given slide
+         * @param {Number} index The index of slide
+         */
+        go: function(index) {
+            if (this._isPlaying) {
+                return;
+            }
+
+            if (index <= 0) {
+                index = this._numSlides - 1;
+            }
+            if (index >= this._numSlides) {
+                index = 0;
+            }
+
+            this._isPlaying    = true;
+            this._elapsedTime  = 0;
+
+            clearInterval(this._timer);
+
+            // Hide the progress bar
+//            this.$progressBar
+//                .stop()
+//                .fadeOut(300, function() {
+//                    $(this).width(0);
+//                    //$(this).width($(this).data('width'));
+//                });
+
+            // Just hide the current slide, show the next one
+            this.slides.eq(this._currentSlide).css('display', 'none');
+            this._currentSlide = index;
+            this.slides.eq(this._currentSlide).css('display', 'block');
+
+            this._complete();
+        },
+
+        /**
          * Show the previous slide
          */
         prev: function() {
-
+            this.go(this._currentSlide - 1);
         },
 
         /**
          * Shows the next slide
          */
         next: function() {
-            // Hide the progress bar
-            this.$progressBar
-                .stop()
-                .fadeOut(300, function() {
-                    $(this).width($(this).data('width'));
-                });
-
-            // Just hide the current slide, show the next one
-            this.slides.eq(this._currentSlide).css('display', 'none');
-            this._currentSlide++;
-            if (this._currentSlide >= this._numSlides - 1) {
-                this._currentSlide = 0;
-            }
-            this.slides.eq(this._currentSlide).css('display', 'block');
-
-            this._complete();
+            this.go(this._currentSlide + 1);
         }
     };
 

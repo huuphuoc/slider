@@ -15,12 +15,15 @@
   /*display: none;*/
 
 }
+.s-wrapper .s-slide img {
+  max-width: 100%;
+}
 .s-wrapper .s-progressbar {
   background-color: #000000;
-  height: 3px;
+  height: 5px;
   width: 100%;
   opacity: 0.5;
   position: absolute;
-  bottom: 3px;
+  top: 0;
   z-index: 100;
 }
